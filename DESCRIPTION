@@ -1,6 +1,7 @@
 Package: SCOUP
 Type: Package
 Title: SCOUP : a probabilistic model based on the Ornstein-Uhlenbeck process to analyze single-cell expression data during differentiation.
+Description: A probabilistic model based on the Ornstein-Uhlenbeck process to analyze single-cell expression data during differentiation.
 Version: 1.0
 Author: Robrecht Cannoodt
 Maintainer: Robrecht Cannoodt <robrecht.cannoodt@gmail.com>
