@@ -10,10 +10,26 @@
 #include <cassert>
 #include <cfloat>
 #include <map>
-
+#include <unistd.h>
+#include <fstream>
 #include "node.h"
+#include <stdlib.h>
 
 using namespace std;
+
+char* get_filename(FILE * file) {
+  int MAXSIZE = 0xFFF;
+  char proclnk[0xFFF];
+  char* filename = (char*) malloc(MAXSIZE * sizeof(char));
+  ssize_t r;
+  r = readlink(proclnk, filename, MAXSIZE);
+  if (r < 0) {
+    printf("failed to readlink\n");
+    exit(1);
+  }
+  filename[r] = '\0';
+  return filename;
+}
 
 class Continuous_OU_process{
 public:
@@ -935,14 +951,16 @@ public:
 		}
 	}
 
-	void Print_cell_parameter(FILE *fp){
+	void Print_cell_parameter(char* name){
+    std::ofstream fp(name);
 		for(int i=0; i<_cell_num; i++){
-			fprintf(fp, "%lf\t", cells[i].Time());
+		  fp << cells[i].Time();
 			for(int j=0; j<_K; j++){
-				fprintf(fp, "%.3LF\t", cells[i]._gamma[j]);
+			  fp << "\t" << cells[i]._gamma[j];
 			}
-			fprintf(fp, "\n");
+			fp << std::endl;
 		}
+		fp.close();
 	}
 
 	void Print_gene_parameter(){
@@ -962,22 +980,24 @@ public:
 		return;
 	}
 
-	void Print_gene_parameter(FILE *fp){
-		fprintf(fp, " \t \t");
+	void Print_gene_parameter(char* name){
+	  std::ofstream fp(name);
+	  fp << " \t \t";
 		for(int k=0; k<_K; k++){
-			fprintf(fp, "%lf", lineages[k].Pi());
-			if(k != _K-1)	fprintf(fp, " \t");
-			else	fprintf(fp, "\n");
+		  fp << lineages[k].Pi();
+			if(k != _K-1) fp << " \t";
+			else fp << std::endl;
 		}
 
 		for(int g=0; g<_gene_num; g++){
-			fprintf(fp, "%lf\t%lf\t", genes[g].Alpha(), genes[g].Sigma_squared());
+		  fp << genes[g].Alpha() << "\t" << genes[g].Sigma_squared() << "\t";
 			for(int k=0; k<_K; k++){
-				fprintf(fp, "%lf", lineages[k].Theta(g));
-				if(k != _K-1)	fprintf(fp, " \t");
-				else	fprintf(fp, "\n");
+			  fp << lineages[k].Theta(g);
+				if(k != _K-1) fp << " \t";
+				else fp << std::endl;
 			}
 		}
+		fp.close();
 	}
 
 	void Print_gene_nullparameter(FILE *fp){
@@ -986,11 +1006,16 @@ public:
 		}
 	}
 
-	void Print_ll(FILE *fp){
-		fprintf(fp, "%lf\n", Log_likelihood());
+	void Print_ll(char* name){
+	  std::ofstream fp(name);
+	  fp << Log_likelihood() << std::endl;
+		fp.close();
 	}
 
-	void Print_correlation(FILE *fp, FILE *fcor){
+	void Print_correlation(char* fp_name, char* fcor_name){
+	  std::ofstream fp(fp_name);
+	  std::ofstream fcor(fcor_name);
+
 		int id;
 		double at, mean, variance, normalized_value;
 		vector<vector<double> > expr(_gene_num, vector<double>(_cell_num, 0));
@@ -1012,12 +1037,11 @@ public:
 		//print normalized expression
 		for(int g=0; g<_gene_num; g++){
 			for(int c=0; c<_cell_num; c++){
-				fprintf(fp, "%lf", expr[g][c]);
+			  fp << expr[g][c];
 				if(c != _cell_num-1){
-					fprintf(fp, "\t");
-				}
-				else{
-					fprintf(fp, "\n");
+				  fp << "\t";
+				} else{
+					fp << std::endl;
 				}
 			}
 		}
@@ -1056,16 +1080,18 @@ public:
 				else{
 					cor = cov/(sqrtf(var1) * sqrtf(var2));
 				}
-				fprintf(fcor, "%lf", cor);
+				fcor << cor;
 
 				if(j != _gene_num-1){
-					fprintf(fcor, "\t");
-				}
-				else{
-					fprintf(fcor, "\n");
+					fcor << "\t";
+				} else{
+					fcor << std::endl;
 				}
 			}
 		}
+
+		fp.close();
+		fcor.close();
 	}
 
 	/*
@@ -1189,7 +1215,11 @@ public:
     return sqrtf(ret);
   }
 
-  void Prim(FILE *ftime, FILE *fpca){
+  //void Prim(ofstream ftime, ofstream fpca){
+  void Prim(char* ftime_name, char* fpca_name){
+    std::ofstream ftime(ftime_name);
+    std::ofstream fpca(fpca_name);
+
     //run PCA
     int data_num = _cell_num + 1;
     //normalization todo variance
@@ -1323,16 +1353,19 @@ public:
     for(int i=0; i<_cell_num; i++){
       pseudo_time[i] /= max_pseudo_time;
       cells[i].Add_time(pseudo_time[i]);
-      fprintf(ftime, "%d\t%lf\n", i, pseudo_time[i]);
+      ftime << i << "\t" << pseudo_time[i] << std::endl;
     }
 
     for(int i=0; i<data_num; i++){
-      fprintf(fpca, "%d\t", i);
+      fpca << i;
       for(int j=0; j<_dim; j++){
-        fprintf(fpca, "%lf\t", z[i][j]);
+        fpca << "\t" << z[i][j];
       }
-      fprintf(fpca, "\n");
+      fpca << std::endl;
     }
+
+    ftime.close();
+    fpca.close();
   }
 
   int Set_initial_parameter(FILE *fp){

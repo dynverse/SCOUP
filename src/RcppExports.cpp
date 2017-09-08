@@ -6,15 +6,15 @@
 using namespace Rcpp;
 
 // main_wrap
-int main_wrap(Rcpp::CharacterVector args, bool verbose, int method);
-RcppExport SEXP _SCOUP_main_wrap(SEXP argsSEXP, SEXP verboseSEXP, SEXP methodSEXP) {
+int main_wrap(int method, Rcpp::CharacterVector args, bool verbose);
+RcppExport SEXP _SCOUP_main_wrap(SEXP methodSEXP, SEXP argsSEXP, SEXP verboseSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type method(methodSEXP);
     Rcpp::traits::input_parameter< Rcpp::CharacterVector >::type args(argsSEXP);
     Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
-    Rcpp::traits::input_parameter< int >::type method(methodSEXP);
-    rcpp_result_gen = Rcpp::wrap(main_wrap(args, verbose, method));
+    rcpp_result_gen = Rcpp::wrap(main_wrap(method, args, verbose));
     return rcpp_result_gen;
 END_RCPP
 }

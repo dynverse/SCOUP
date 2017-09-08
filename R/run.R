@@ -8,6 +8,6 @@
 #' @export
 run_SCOUP <- function(method, args_string, verbose = F) {
   args <- strsplit(args_string, " ")[[1]]
-  method_int <- c("scoup", "scoup_resume", "sp", "correlation")[method]
-  main_wrap(args, verbose, method_int)
+  method_int <- c("scoup"=1, "scoup_resume"=2, "correlation"=3, "sp"=4)[method]
+  main_wrap(method_int, args, verbose)
 }
