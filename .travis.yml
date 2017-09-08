@@ -5,4 +5,5 @@ warnings_are_errors: false
 addons:
   apt:
     packages:
-      - libsdl1.2-dev
+      - libblas-dev
+      - liblapack-de
