@@ -53,7 +53,6 @@ run_SCOUP <- function(expr,
 
     # execute sp
     execute("sp", glue::glue(
-      # "sp",
       "{tmp_dir}/data",
       "{tmp_dir}/init",
       "{tmp_dir}/time_sp",
@@ -66,7 +65,6 @@ run_SCOUP <- function(expr,
 
     # execute scoup
     execute("scoup", glue::glue(
-      # "scoup",
       "{tmp_dir}/data",
       "{tmp_dir}/init",
       "{tmp_dir}/time_sp",
@@ -106,10 +104,11 @@ run_SCOUP <- function(expr,
     rownames(cpara) <- rownames(expr)
 
     # read gene params
+    pi <- utils::read.table(paste0(tmp_dir, "/gpara"), nrows = 1)[1,]
     gpara <- utils::read.table(
       paste0(tmp_dir, "/gpara"),
       skip = 1,
-      col.names = c("alpha", "sigma", "theta")
+      col.names = c("alpha", "sigma", paste0("theta_", seq_len(nbranch)))
     )
     rownames(gpara) <- colnames(expr)
 
@@ -121,10 +120,11 @@ run_SCOUP <- function(expr,
       root = root,
       dimred = dimred,
       cpara = cpara,
+      pi = pi,
       gpara = gpara,
       ll = ll
     )
   }, finally = {
-    unlink(tmp_dir, recursive = TRUE, force = TRUE)
+    # unlink(tmp_dir, recursive = TRUE, force = TRUE)
   })
 }
