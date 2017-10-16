@@ -1,6 +1,6 @@
 execute <- function(method, args_string, verbose = F) {
   args <- strsplit(args_string, " ")[[1]]
-  method_int <- c("scoup"=1, "scoup_resume"=2, "correlation"=3, "sp"=4)[method]
+  method_int <- c("scoup" = 1, "scoup_resume" = 2, "correlation" = 3, "sp" = 4)[method]
   main_wrap(method_int, args, verbose)
 }
 
@@ -8,7 +8,7 @@ execute <- function(method, args_string, verbose = F) {
 #'
 #' @param expr The expression data
 #' @param start_ix The indices or names of the starting population
-#' @param dim dim
+#' @param ndim ndim
 #' @param nbranch nbranch
 #' @param max_ite1 max_ite1
 #' @param max_ite2 max_ite2
@@ -26,7 +26,7 @@ execute <- function(method, args_string, verbose = F) {
 #' @export
 run_SCOUP <- function(expr,
                       start_ix,
-                      dim = 3,
+                      ndim = 3,
                       nbranch = 1,
                       max_ite1 = 1000,
                       max_ite2 = 10000,
@@ -42,7 +42,7 @@ run_SCOUP <- function(expr,
   distr_df <- data.frame(i = seq_along(vars) - 1, means, vars)
 
   # create temporary folder
-  tmp_dir <- tempfile()
+  tmp_dir <- tempfile(pattern = "scoup")
   dir.create(tmp_dir)
 
   tryCatch({
@@ -59,7 +59,7 @@ run_SCOUP <- function(expr,
       "{tmp_dir}/gpara",
       "{ncol(expr)}",
       "{nrow(expr)}",
-      "{dim}",
+      "{ndim}",
       .sep = " "
     ), verbose = TRUE)
 
@@ -84,13 +84,14 @@ run_SCOUP <- function(expr,
       "-s {sigma_squared_min}",
       "-e {thresh}",
       .sep = " "
-    ))
+    ), verbose = TRUE)
 
     # read output
-    model <- utils::read.table(paste0(tmp_dir, "cpara"))
-    colnames(model) <- c("time", paste0("M", seq_len(ncol(model)-1)+1))
+    model <- utils::read.table(paste0(tmp_dir, "/cpara"))
+    colnames(model) <- c("time", paste0("M", seq_len(nbranch)))
+    rownames(model) <- rownames(expr)
     model
   }, finally = {
-    unlink(tmp_dir, recursive = TRUE)
+    unlink(tmp_dir, recursive = TRUE, force = TRUE)
   })
 }

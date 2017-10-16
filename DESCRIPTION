@@ -7,9 +7,12 @@ Author: Robrecht Cannoodt
 Maintainer: Robrecht Cannoodt <robrecht.cannoodt@gmail.com>
 License: GPL-3
 Imports:
+    dplyr,
+    glue,
     methods,
     Rcpp (>= 0.11.4),
-    dplyr
+    stats,
+    utils
 LinkingTo: Rcpp
 Encoding: UTF-8
 RoxygenNote: 6.0.1

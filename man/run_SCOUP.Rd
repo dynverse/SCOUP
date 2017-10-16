@@ -4,7 +4,7 @@
 \alias{run_SCOUP}
 \title{Run SCOUP}
 \usage{
-run_SCOUP(expr, start_ix, dim = 3, nbranch = 1, max_ite1 = 1000,
+run_SCOUP(expr, start_ix, ndim = 3, nbranch = 1, max_ite1 = 1000,
   max_ite2 = 10000, alpha_min = 0.1, alpha_max = 100, t_min = 0.001,
   t_max = 2, sigma_squared_min = 0.1, thresh = 0.01)
 }
@@ -13,7 +13,7 @@ run_SCOUP(expr, start_ix, dim = 3, nbranch = 1, max_ite1 = 1000,
 
 \item{start_ix}{The indices or names of the starting population}
 
-\item{dim}{dim}
+\item{ndim}{ndim}
 
 \item{nbranch}{nbranch}
 
