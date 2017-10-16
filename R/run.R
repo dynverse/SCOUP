@@ -93,7 +93,7 @@ run_SCOUP <- function(expr,
 
     # last line is root node
     root <- dimred[nrow(dimred),-1,drop=F]
-    dimred <- dimred[-nrow(dimred),]
+    dimred <- dimred[-nrow(dimred),-1]
     rownames(dimred) <- rownames(expr)
 
     # read cell params
