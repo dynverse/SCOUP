@@ -2,4 +2,8 @@
 
 export(run_SCOUP)
 importFrom(Rcpp,sourceCpp)
+importFrom(glue,glue)
+importFrom(stats,var)
+importFrom(utils,read.table)
+importFrom(utils,write.table)
 useDynLib(SCOUP)

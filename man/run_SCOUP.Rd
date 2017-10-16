@@ -2,18 +2,37 @@
 % Please edit documentation in R/run.R
 \name{run_SCOUP}
 \alias{run_SCOUP}
-\title{A simple wrapper for the SCOUP executable}
+\title{Run SCOUP}
 \usage{
-run_SCOUP(method, args_string, verbose = F)
+run_SCOUP(expr, start_ix, dim = 3, nbranch = 1, max_ite1 = 1000,
+  max_ite2 = 10000, alpha_min = 0.1, alpha_max = 100, t_min = 0.001,
+  t_max = 2, sigma_squared_min = 0.1, thresh = 0.01)
 }
 \arguments{
-\item{method}{which executable to run, can be one of \code{"scoup"}, \code{"scoup_resume"}, \code{"sp"}, or \code{"correlation"}.}
+\item{expr}{The expression data}
 
-\item{verbose}{whether or not to print the SCOUP output}
+\item{start_ix}{The indices or names of the starting population}
 
-\item{args}{a string containing the command that would normally be
-entered for running the SCOUP executable.}
+\item{dim}{dim}
+
+\item{nbranch}{nbranch}
+
+\item{max_ite1}{max_ite1}
+
+\item{max_ite2}{max_ite2}
+
+\item{alpha_min}{alpha_min}
+
+\item{alpha_max}{alpha_max}
+
+\item{t_min}{t_min}
+
+\item{t_max}{t_max}
+
+\item{sigma_squared_min}{sigma_squared_min}
+
+\item{thresh}{thresh}
 }
 \description{
-A simple wrapper for the SCOUP executable
+Run SCOUP
 }
