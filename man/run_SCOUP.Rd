@@ -6,7 +6,7 @@
 \usage{
 run_SCOUP(expr, start_ix, ndim = 3, nbranch = 1, max_ite1 = 1000,
   max_ite2 = 10000, alpha_min = 0.1, alpha_max = 100, t_min = 0.001,
-  t_max = 2, sigma_squared_min = 0.1, thresh = 0.01)
+  t_max = 2, sigma_squared_min = 0.1, thresh = 0.01, verbose = FALSE)
 }
 \arguments{
 \item{expr}{The expression data}

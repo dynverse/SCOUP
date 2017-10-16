@@ -1,7 +1,7 @@
 execute <- function(method, args_string, verbose = FALSE) {
   path <- find.package("SCOUP")
   cmd <- paste0("'", path, "/code/", method, "' ", args_string)
-  system(cmd)
+  system(cmd, ignore.stdout = !verbose, ignore.stderr = !verbose)
 }
 
 #' Run SCOUP
@@ -35,7 +35,8 @@ run_SCOUP <- function(expr,
                       t_min = .001,
                       t_max = 2,
                       sigma_squared_min = .1,
-                      thresh = .01) {
+                      thresh = .01,
+                      verbose = FALSE) {
   # create distribution on starting population
   vars <- apply(expr[start_ix,], 2, stats::var)
   means <- apply(expr[start_ix,], 2, mean)
@@ -61,7 +62,7 @@ run_SCOUP <- function(expr,
       "{nrow(expr)}",
       "{ndim}",
       .sep = " "
-    ), verbose = TRUE)
+    ), verbose = verbose)
 
     # execute scoup
     SCOUP:::execute("scoup", glue::glue(
@@ -84,13 +85,17 @@ run_SCOUP <- function(expr,
       "-s {sigma_squared_min}",
       "-e {thresh}",
       .sep = " "
-    ), verbose = TRUE)
+    ), verbose = verbose)
 
     # read dimred
     dimred <- utils::read.table(
       paste0(tmp_dir, "/dimred"),
       col.names = c("i", paste0("Comp", seq_len(ndim)))
     )
+
+    # last line is root node
+    root <- dimred[nrow(dimred),-1,drop=F]
+    dimred <- dimred[-nrow(dimred),]
     rownames(dimred) <- rownames(expr)
 
     # read cell params
@@ -113,6 +118,7 @@ run_SCOUP <- function(expr,
 
     # return output
     list(
+      root = root,
       dimred = dimred,
       cpara = cpara,
       gpara = gpara,
