@@ -160,7 +160,7 @@ public:
 	double OU(double x, double t, int k){
 		double mean = exp(-_alpha * t)*_initial_expression + (1 - exp(-_alpha*t))*lineages[k].Theta(_gene_id);
 		double variance = _sigma_squared*(1-exp(-2*_alpha*t))/(2*_alpha);
-
+		
 		double ret = Gaussian(x, mean, variance);
 		return ret;
 	}
@@ -168,7 +168,7 @@ public:
 	double LogOU(double x, double t, int k){
 		double mean = exp(-_alpha * t)*_initial_expression + (1 - exp(-_alpha*t))*lineages[k].Theta(_gene_id);
 		double variance = _sigma_squared*(1-exp(-2*_alpha*t))/(2*_alpha) + exp(-2*_alpha*t)*_initial_sigma_squared;
-
+		
 		double ret = Log_Gaussian(x, mean, variance);
 		return ret;
 	}
@@ -176,7 +176,7 @@ public:
 	double LogOU_with_new_parameter(double x, double t, int k){
 		double mean = exp(-_new_alpha * t)*_initial_expression + (1 - exp(-_new_alpha*t))*lineages[k]._new_theta[_gene_id];
 		double variance = _new_sigma_squared*(1-exp(-2*_new_alpha*t))/(2*_new_alpha) + exp(-2*_new_alpha*t)*_initial_sigma_squared;
-
+		
 		double ret = Log_Gaussian(x, mean, variance);
 		if(isinf(ret)){
 			//for debug
@@ -192,7 +192,7 @@ public:
 	double LogOU_with_new_theta(double x, double t, int k){
 		double mean = exp(-_alpha * t)*_initial_expression + (1 - exp(-_alpha*t))*lineages[k]._new_theta[_gene_id];
 		double variance = _sigma_squared*(1-exp(-2*_alpha*t))/(2*_alpha) + exp(-2*_alpha*t)*_initial_sigma_squared;
-
+		
 		double ret = Log_Gaussian(x, mean, variance);
 		if(isinf(ret)){
 			//for debug
@@ -207,7 +207,7 @@ public:
 	double LogOU_with_new_sigma(double x, double t, int k, double sigma){
 		double mean = exp(-_alpha * t)*_initial_expression + (1 - exp(-_alpha*t))*lineages[k].Theta(_gene_id);
 		double variance = sigma*(1-exp(-2*_alpha*t))/(2*_alpha) + exp(-2*_alpha*t)*_initial_sigma_squared;
-
+		
 		double ret = Log_Gaussian(x, mean, variance);
 		if(isinf(ret)){
 			//for debug
@@ -222,7 +222,7 @@ public:
 	double LogOU_with_new_alpha(double x, double t, int k, double alpha){
 		double mean = exp(-alpha * t)*_initial_expression + (1 - exp(-alpha*t))*lineages[k].Theta(_gene_id);
 		double variance = _sigma_squared*(1-exp(-2*alpha*t))/(2*alpha) + exp(-2*alpha*t)*_initial_sigma_squared;
-
+		
 		double ret = Log_Gaussian(x, mean, variance);
 		if(isinf(ret)){
 			//for debug
@@ -237,7 +237,7 @@ public:
 	double LogOU_null_model(double x, double t){
 		double mean = exp(-_alpha * t)*_initial_expression + (1 - exp(-_alpha*t))*_theta_null;
 		double variance = _sigma_squared*(1-exp(-2*_alpha*t))/(2*_alpha) + exp(-2*_alpha*t)*_initial_sigma_squared;
-
+		
 		double ret = Log_Gaussian(x, mean, variance);
 		if(isinf(ret)){
 			//for debug
@@ -252,7 +252,7 @@ public:
 	double LogOU_null_model2(double x, double t){
 		double mean = exp(-_alpha * t)*_initial_expression + (1 - exp(-_alpha*t))*_initial_expression;
 		double variance = _sigma_squared*(1-exp(-2*_alpha*t))/(2*_alpha) + exp(-2*_alpha*t)*_initial_sigma_squared;
-
+		
 		double ret = Log_Gaussian(x, mean, variance);
 		if(isinf(ret)){
 			//for debug
@@ -444,13 +444,13 @@ public:
 				}
 			}
 		}
-
+		
 		//logsum version
 		long double logsum = _gamma[0];
 		for(int i=1; i<_K; i++){
 			logsum = logsumexp(logsum, _gamma[i]);
 		}
-
+ 
 		//todo
 		if(isinf(logsum)){
 			printf("aa %LF %LF %LF\n", logsum, _gamma[0], _gamma[1]);
@@ -516,7 +516,7 @@ public:
 			_gamma[i] = ((double)rand())/RAND_MAX;
 			sum += _gamma[i];
 		}
-
+		
 		for(int i=0; i<_K; i++){
 			_gamma[i] /= sum;
 		}
@@ -532,16 +532,16 @@ public:
 					_gamma_gene[i][j] += genes[i].LogOU(_expression[i], _time, j);
 				}
 			}
-
+			
 			//logsum version
 			double logsum = _gamma_gene[i][0];
 			for(int j=1; j<_K; j++){
 				logsum = logsumexp(logsum, _gamma_gene[i][j]);
 			}
-
+			
 			for(int j=0; j<_K; j++){
 				_gamma_gene[i][j] = exp(_gamma_gene[i][j] - logsum);
-			}
+			}		
 		}
 	}
 
@@ -619,3 +619,4 @@ int LINEAGE::Convergence(double t, double thresh){
 	}
 	return 1;
 }
+

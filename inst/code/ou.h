@@ -10,26 +10,9 @@
 #include <cassert>
 #include <cfloat>
 #include <map>
-#include <unistd.h>
-#include <fstream>
 #include "node.h"
-#include <stdlib.h>
 
 using namespace std;
-
-char* get_filename(FILE * file) {
-  int MAXSIZE = 0xFFF;
-  char proclnk[0xFFF];
-  char* filename = (char*) malloc(MAXSIZE * sizeof(char));
-  ssize_t r;
-  r = readlink(proclnk, filename, MAXSIZE);
-  if (r < 0) {
-    printf("failed to readlink\n");
-    exit(1);
-  }
-  filename[r] = '\0';
-  return filename;
-}
 
 class Continuous_OU_process{
 public:
@@ -190,7 +173,7 @@ public:
 		long double numerator = 0.0;
 		long double denominator = 0.0;
 		long double e_minus_at_power;
-
+		
 		for(int i=0; i<_gene_num; i++){
 			for(int j=0; j<_K; j++){
 				new_theta = lineages[j].Theta(i);
@@ -296,7 +279,7 @@ public:
 						E = -0.5*at*(X0_minus_theta_squared(k,i,j,old_time) + Xn_minus_theta_squared(k,i,j));
 						E += at*cosh(at)*X0_minus_theta_times_Xn_minus_theta(k,i,j,old_time);
 						E /= sinh(at) * sinh(at);
-
+						
 						f1 += cells[i].Gamma(j) * (at*(1-cosh(at)/sinh(at)) - 2*genes[k].Alpha()/genes[k].Sigma_squared()*E);
 					}
 				}
@@ -545,7 +528,7 @@ public:
 		}
 		else{
 			mu = (2*genes[i].Alpha()/(genes[i].Sigma_squared()*(exp(2*at)-1))*(exp(at)*cells[j].Xn(i)+(1-exp(at))*lineages[k].Theta(i)) + genes[i].Initial_expression()/genes[i].Initial_dispersion()) * var;
-		}
+		}		
 		double tmp = mu - lineages[k].Theta(i);
 
 		return (tmp * tmp) + var;
@@ -644,7 +627,7 @@ public:
 				else
 					tmp2 = logsumexp(tmp2, tmp1);
 			}
-
+		
 			ll += tmp2;
 		}
 		return ll;
@@ -660,7 +643,7 @@ public:
 					tmp1 += genes[k].LogOU_null_model(cells[i].Xn(k), cells[i].Time());
 				}
 			}
-
+		
 			ll += tmp1;
 		}
 		return ll;
@@ -688,7 +671,7 @@ public:
 
 	double Log_likelihood_of_cell(int id, double tmp_time){
 		double tmp1, tmp2;
-
+		
 		for(int j=0; j<_K; j++){
 			tmp1 = log(lineages[j].Pi());
 			for(int k=0; k<_gene_num; k++){
@@ -743,11 +726,11 @@ public:
 	void Set_expression(FILE *fp){
 		char buf[1000000];
 		char *tmp;
-
+		
 		double tmp_expression;
 		for(int i=0; i<_gene_num; i++){
-			fgets(buf, 1000000, fp);
-
+			fgets(buf, 1000000, fp);	
+			
 			tmp = strtok(buf, "\t");
 			if(strcmp(tmp, "NA") == 0){
 				cells[0].Add_expression(i, 0, 1);
@@ -775,7 +758,7 @@ public:
 			else{
 				tmp_expression = atof(tmp);
 				cells[_cell_num-1].Add_expression(i, tmp_expression, 0);
-			}
+			}			
 		}
 
 		return;
@@ -790,7 +773,7 @@ public:
 				printf("error at reading initial parameter\n");
 				return 1;
 			}
-
+			
 			if(time < _min_time){
 				time = _min_time;
 			}
@@ -951,16 +934,14 @@ public:
 		}
 	}
 
-	void Print_cell_parameter(char* name){
-    std::ofstream fp(name);
+	void Print_cell_parameter(FILE *fp){
 		for(int i=0; i<_cell_num; i++){
-		  fp << cells[i].Time();
+			fprintf(fp, "%lf\t", cells[i].Time());
 			for(int j=0; j<_K; j++){
-			  fp << "\t" << cells[i]._gamma[j];
+				fprintf(fp, "%.3LF\t", cells[i]._gamma[j]);
 			}
-			fp << std::endl;
+			fprintf(fp, "\n");
 		}
-		fp.close();
 	}
 
 	void Print_gene_parameter(){
@@ -980,24 +961,22 @@ public:
 		return;
 	}
 
-	void Print_gene_parameter(char* name){
-	  std::ofstream fp(name);
-	  fp << " \t \t";
+	void Print_gene_parameter(FILE *fp){
+		fprintf(fp, " \t \t");
 		for(int k=0; k<_K; k++){
-		  fp << lineages[k].Pi();
-			if(k != _K-1) fp << " \t";
-			else fp << std::endl;
+			fprintf(fp, "%lf", lineages[k].Pi());
+			if(k != _K-1)	fprintf(fp, " \t");
+			else	fprintf(fp, "\n");
 		}
 
 		for(int g=0; g<_gene_num; g++){
-		  fp << genes[g].Alpha() << "\t" << genes[g].Sigma_squared() << "\t";
+			fprintf(fp, "%lf\t%lf\t", genes[g].Alpha(), genes[g].Sigma_squared());
 			for(int k=0; k<_K; k++){
-			  fp << lineages[k].Theta(g);
-				if(k != _K-1) fp << " \t";
-				else fp << std::endl;
+				fprintf(fp, "%lf", lineages[k].Theta(g));
+				if(k != _K-1)	fprintf(fp, " \t");
+				else	fprintf(fp, "\n");
 			}
 		}
-		fp.close();
 	}
 
 	void Print_gene_nullparameter(FILE *fp){
@@ -1006,16 +985,11 @@ public:
 		}
 	}
 
-	void Print_ll(char* name){
-	  std::ofstream fp(name);
-	  fp << Log_likelihood() << std::endl;
-		fp.close();
+	void Print_ll(FILE *fp){
+		fprintf(fp, "%lf\n", Log_likelihood());
 	}
 
-	void Print_correlation(char* fp_name, char* fcor_name){
-	  std::ofstream fp(fp_name);
-	  std::ofstream fcor(fcor_name);
-
+	void Print_correlation(FILE *fp, FILE *fcor){
 		int id;
 		double at, mean, variance, normalized_value;
 		vector<vector<double> > expr(_gene_num, vector<double>(_cell_num, 0));
@@ -1029,7 +1003,7 @@ public:
 				mean = exp(-at)*genes[j].Initial_expression() + (1 - exp(-at))*lineages[id].Theta(j);
 				variance = genes[j].Sigma_squared()*(1-exp(-2*at))/(2*genes[j].Alpha()) + exp(-2*at)*genes[j].Initial_dispersion();
 				normalized_value = (cells[i].Xn(j) - mean)/(sqrtf(variance));
-
+				
 				expr[j][i] = normalized_value;
 			}
 		}
@@ -1037,11 +1011,12 @@ public:
 		//print normalized expression
 		for(int g=0; g<_gene_num; g++){
 			for(int c=0; c<_cell_num; c++){
-			  fp << expr[g][c];
+				fprintf(fp, "%lf", expr[g][c]);
 				if(c != _cell_num-1){
-				  fp << "\t";
-				} else{
-					fp << std::endl;
+					fprintf(fp, "\t");
+				}
+				else{
+					fprintf(fp, "\n");
 				}
 			}
 		}
@@ -1080,18 +1055,16 @@ public:
 				else{
 					cor = cov/(sqrtf(var1) * sqrtf(var2));
 				}
-				fcor << cor;
+				fprintf(fcor, "%lf", cor);
 
 				if(j != _gene_num-1){
-					fcor << "\t";
-				} else{
-					fcor << std::endl;
+					fprintf(fcor, "\t");
+				}
+				else{
+					fprintf(fcor, "\n");
 				}
 			}
 		}
-
-		fp.close();
-		fcor.close();
 	}
 
 	/*
@@ -1184,245 +1157,3 @@ public:
 	*/
 };
 
-extern "C" int dsyev_(char *jobz, char *uplo, int *n, double *a, int *lda, double *w, double *work, int *lwork, int *info);
-
-class Pseudo_Time{
-public:
-  int _gene_num;
-  int _cell_num;
-  int _dim;
-
-  Pseudo_Time(int g, int c, int dim){
-    _gene_num = g;
-    _cell_num = c;
-    _dim = dim;
-    genes.resize(_gene_num);
-    cells.resize(_cell_num);
-
-    for(int i=0; i<_gene_num; i++){
-      genes[i].Init(i);
-    }
-    for(int i=0; i<_cell_num; i++){
-      cells[i].Init(_gene_num);
-    }
-  }
-
-  double Dist(vector<vector<double> > &pos, int id1, int id2, int dim){
-    double ret = 0.0;
-    for(int i=0; i<dim; i++){
-      ret += (pos[id1][i] - pos[id2][i]) * (pos[id1][i] - pos[id2][i]);
-    }
-    return sqrtf(ret);
-  }
-
-  //void Prim(ofstream ftime, ofstream fpca){
-  void Prim(char* ftime_name, char* fpca_name){
-    std::ofstream ftime(ftime_name);
-    std::ofstream fpca(fpca_name);
-
-    //run PCA
-    int data_num = _cell_num + 1;
-    //normalization todo variance
-    vector<vector<double> > normalized_data(data_num, vector<double>(_gene_num, 0));
-    vector<double> ave(_gene_num, 0);
-    vector<double> var(_gene_num, 0);
-    //average
-    for(int i=0; i<_gene_num; i++){
-      for(int j=0; j<_cell_num; j++){
-        ave[i] += cells[j].Get_expression(i);
-      }
-      ave[i] /= _cell_num;
-    }
-    //variance
-    for(int i=0; i<_gene_num; i++){
-      for(int j=0; j<_cell_num; j++){
-        var[i] += (cells[j].Get_expression(i) - ave[i]) * (cells[j].Get_expression(i) - ave[i]);
-      }
-      var[i] /= _cell_num;
-    }
-    //normalization
-    for(int i=0; i<_cell_num; i++){
-      for(int j=0; j<_gene_num; j++){
-        if(var[j] != 0){
-          normalized_data[i][j] = (cells[i].Get_expression(j) - ave[j])/sqrtf(var[j]);
-        }
-        else{
-          normalized_data[i][j] = (cells[i].Get_expression(j) - ave[j]);
-        }
-      }
-    }
-    //add root cell
-    for(int i=0; i<_gene_num; i++){
-      if(var[i] != 0){
-        normalized_data[data_num-1][i] = (genes[i].Initial_expression() - ave[i])/sqrtf(var[i]);
-      }
-      else{
-        normalized_data[data_num-1][i] = (genes[i].Initial_expression() - ave[i]);
-      }
-    }
-
-    //calculate variance-covariance matrix
-    double tmp;
-    vector<double> var_cov_matrix(_gene_num*_gene_num, 0);
-    for(int i=0; i<_gene_num-1; i++){
-      for(int j=i; j<_gene_num; j++){
-        for(int k=0; k<data_num; k++){
-          tmp = normalized_data[k][i] * normalized_data[k][j];
-
-          if(i == j){
-            var_cov_matrix[i*_gene_num + j] += tmp;
-          }
-          else{
-            var_cov_matrix[i*_gene_num + j] += tmp;
-            var_cov_matrix[j*_gene_num + i] += tmp;
-          }
-        }
-      }
-    }
-
-    for(int i=0; i<_gene_num; i++){
-      for(int j=0; j<_gene_num; j++){
-        var_cov_matrix[i*_gene_num + j] /= (double)(data_num-1);
-      }
-    }
-
-    //PCA
-    int info=0, lwork = 3*_gene_num;
-    vector<double> w(_gene_num, 0);
-    vector<double> work(lwork, 0);
-    char jobz = 'V', uplo = 'U';
-    dsyev_(&jobz, &uplo, &_gene_num, &var_cov_matrix[0], &_gene_num, &w[0], &work[0], &lwork, &info);
-
-    vector<vector<double> > z(data_num, vector<double>(_dim, 0));
-    for (int i=0; i<data_num; i++){
-      for(int j=0; j<_dim; j++){
-        //todo
-        z[i][j] = 0;
-        for(int k=0; k<_gene_num; k++){
-          z[i][j] += normalized_data[i][k] * var_cov_matrix[(_gene_num-j-1)*_gene_num+k];
-        }
-      }
-      //printf("%d\t%lf\t%lf\n", i, z[i][0], z[i][1]);
-    }
-
-
-    //calculate distance on PCA
-    vector<vector<double> > edges_cost(data_num, vector<double>(data_num,0));
-    for(int i=0; i<data_num; i++){
-      for(int j=i+1; j<data_num; j++){
-        edges_cost[i][j] = Dist(z, i, j, _dim);
-        edges_cost[j][i] = edges_cost[i][j];
-      }
-    }
-
-    //prim
-    int min_node_from, min_node_to, erase_id;
-    double min, max_pseudo_time = 0;
-    vector<vector<double> > mst(data_num, vector<double>(data_num,0));
-    vector<int> checked_node;
-    vector<int> uncheked_node(data_num-1);
-    vector<double> pseudo_time(data_num, 0);
-    for(int i=0; i<data_num-1; i++){
-      uncheked_node[i] = i;
-    }
-    checked_node.push_back(data_num-1);
-    for(int i=0; i<data_num-1; i++){
-      min = DBL_MAX;
-      for(int j=0; j<checked_node.size(); j++){
-        for(int k=0; k<uncheked_node.size(); k++){
-          if(min > edges_cost[checked_node[j]][uncheked_node[k]]){
-            min = edges_cost[checked_node[j]][uncheked_node[k]];
-            min_node_from = checked_node[j];
-            min_node_to = uncheked_node[k];
-            erase_id = k;
-          }
-        }
-      }
-      mst[min_node_from][min_node_to] = 1;
-      checked_node.push_back(min_node_to);
-      uncheked_node.erase(uncheked_node.begin() + erase_id);
-
-      //
-      pseudo_time[min_node_to] = pseudo_time[min_node_from] + min;
-      if(max_pseudo_time < pseudo_time[min_node_to]){
-        max_pseudo_time = pseudo_time[min_node_to];
-      }
-    }
-
-    //normalize pseudo time
-    for(int i=0; i<_cell_num; i++){
-      pseudo_time[i] /= max_pseudo_time;
-      cells[i].Add_time(pseudo_time[i]);
-      ftime << i << "\t" << pseudo_time[i] << std::endl;
-    }
-
-    for(int i=0; i<data_num; i++){
-      fpca << i;
-      for(int j=0; j<_dim; j++){
-        fpca << "\t" << z[i][j];
-      }
-      fpca << std::endl;
-    }
-
-    ftime.close();
-    fpca.close();
-  }
-
-  int Set_initial_parameter(FILE *fp){
-    int count, id;
-    double expression, dispersion;
-    for(int i=0; i<_gene_num; i++){
-      count = fscanf(fp, "%d\t%lf\t%lf\n", &id, &expression, &dispersion);
-      if(count == EOF){
-        printf("error at reading initial parameter\n");
-        return 1;
-      }
-
-      genes[i].Add_initial_expression(expression);
-      genes[i].Add_initial_dispersion(dispersion);
-    }
-    return 0;
-  }
-
-  //read expression data
-  void Set_expression(FILE *fp){
-    char buf[1000000];
-    char *tmp;
-
-    double tmp_expression;
-    for(int i=0; i<_gene_num; i++){
-      fgets(buf, 1000000, fp);
-
-      tmp = strtok(buf, "\t");
-      if(strcmp(tmp, "NA") == 0){
-        cells[0].Add_expression(i, 0, 1);
-      }
-      else{
-        tmp_expression = atof(tmp);
-        cells[0].Add_expression(i, tmp_expression, 0);
-      }
-
-      for(int j=1; j<_cell_num-1; j++){
-        tmp = strtok(NULL, "\t");
-        if(strcmp(tmp, "NA") == 0){
-          cells[j].Add_expression(i, 0, 1);
-        }
-        else{
-          tmp_expression = atof(tmp);
-          cells[j].Add_expression(i, tmp_expression, 0);
-        }
-      }
-
-      tmp = strtok(NULL, "\n");
-      if(strcmp(tmp, "NA") == 0){
-        cells[_cell_num-1].Add_expression(i, 0, 1);
-      }
-      else{
-        tmp_expression = atof(tmp);
-        cells[_cell_num-1].Add_expression(i, tmp_expression, 0);
-      }
-    }
-
-    return;
-  }
-};

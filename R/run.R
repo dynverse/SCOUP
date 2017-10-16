@@ -1,7 +1,7 @@
-execute <- function(method, args_string, verbose = F) {
-  args <- strsplit(args_string, " ")[[1]]
-  method_int <- c("scoup" = 1, "scoup_resume" = 2, "correlation" = 3, "sp" = 4)[method]
-  main_wrap(method_int, args, verbose)
+execute <- function(method, args_string, verbose = FALSE) {
+  path <- find.package("SCOUP")
+  cmd <- paste0("'", path, "/code/", method, "' ", args_string)
+  system(cmd)
 }
 
 #' Run SCOUP
@@ -52,7 +52,7 @@ run_SCOUP <- function(expr,
 
     # execute sp
     execute("sp", glue::glue(
-      "sp",
+      # "sp",
       "{tmp_dir}/data",
       "{tmp_dir}/init",
       "{tmp_dir}/time_sp",
@@ -65,7 +65,7 @@ run_SCOUP <- function(expr,
 
     # execute scoup
     execute("scoup", glue::glue(
-      "scoup",
+      # "scoup",
       "{tmp_dir}/data",
       "{tmp_dir}/init",
       "{tmp_dir}/time_sp",

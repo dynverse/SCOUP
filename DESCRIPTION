@@ -10,9 +10,7 @@ Imports:
     dplyr,
     glue,
     methods,
-    Rcpp (>= 0.11.4),
     stats,
     utils
-LinkingTo: Rcpp
 Encoding: UTF-8
 RoxygenNote: 6.0.1
