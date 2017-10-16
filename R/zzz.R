@@ -5,7 +5,6 @@
 }
 
 #' Reinstall SCOUP
-#' @export
 reinstall <- function() {
   path <- find.package("SCOUP")
   cmd <- paste0("cd '", path, "/code'; make all")
