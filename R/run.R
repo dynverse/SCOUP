@@ -52,7 +52,7 @@ run_SCOUP <- function(expr,
     utils::write.table(distr_df, file = paste0(tmp_dir, "/init"), sep = "\t", row.names = FALSE, col.names = FALSE)
 
     # execute sp
-    SCOUP:::execute("sp", glue::glue(
+    execute("sp", glue::glue(
       # "sp",
       "{tmp_dir}/data",
       "{tmp_dir}/init",
@@ -65,7 +65,7 @@ run_SCOUP <- function(expr,
     ), verbose = verbose)
 
     # execute scoup
-    SCOUP:::execute("scoup", glue::glue(
+    execute("scoup", glue::glue(
       # "scoup",
       "{tmp_dir}/data",
       "{tmp_dir}/init",
