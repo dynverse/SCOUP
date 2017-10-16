@@ -51,12 +51,12 @@ run_SCOUP <- function(expr,
     utils::write.table(distr_df, file = paste0(tmp_dir, "/init"), sep = "\t", row.names = FALSE, col.names = FALSE)
 
     # execute sp
-    execute("sp", glue::glue(
+    SCOUP:::execute("sp", glue::glue(
       # "sp",
       "{tmp_dir}/data",
       "{tmp_dir}/init",
       "{tmp_dir}/time_sp",
-      "{tmp_dir}/gpara",
+      "{tmp_dir}/dimred",
       "{ncol(expr)}",
       "{nrow(expr)}",
       "{ndim}",
@@ -64,7 +64,7 @@ run_SCOUP <- function(expr,
     ), verbose = TRUE)
 
     # execute scoup
-    execute("scoup", glue::glue(
+    SCOUP:::execute("scoup", glue::glue(
       # "scoup",
       "{tmp_dir}/data",
       "{tmp_dir}/init",
@@ -86,11 +86,38 @@ run_SCOUP <- function(expr,
       .sep = " "
     ), verbose = TRUE)
 
-    # read output
-    model <- utils::read.table(paste0(tmp_dir, "/cpara"))
-    colnames(model) <- c("time", paste0("M", seq_len(nbranch)))
-    rownames(model) <- rownames(expr)
-    model
+    # read dimred
+    dimred <- utils::read.table(
+      paste0(tmp_dir, "/dimred"),
+      col.names = c("i", paste0("Comp", seq_len(ndim)))
+    )
+    rownames(dimred) <- rownames(expr)
+
+    # read cell params
+    cpara <- utils::read.table(
+      paste0(tmp_dir, "/cpara"),
+      col.names = c("time", paste0("M", seq_len(nbranch)))
+    )
+    rownames(cpara) <- rownames(expr)
+
+    # read gene params
+    gpara <- utils::read.table(
+      paste0(tmp_dir, "/gpara"),
+      skip = 1,
+      col.names = c("alpha", "sigma", "theta")
+    )
+    rownames(gpara) <- colnames(expr)
+
+    # loglik
+    ll <- utils::read.table(paste0(tmp_dir, "/ll"))[[1]]
+
+    # return output
+    list(
+      dimred = dimred,
+      cpara = cpara,
+      gpara = gpara,
+      ll = ll
+    )
   }, finally = {
     unlink(tmp_dir, recursive = TRUE, force = TRUE)
   })
