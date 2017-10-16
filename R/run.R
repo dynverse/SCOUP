@@ -87,7 +87,9 @@ run_SCOUP <- function(expr,
     ))
 
     # read output
-    utils::read.table(paste0(tmp_dir, "cpara"))
+    model <- utils::read.table(paste0(tmp_dir, "cpara"))
+    colnames(model) <- c("time", paste0("M", seq_len(ncol(model)-1)+1))
+    model
   }, finally = {
     unlink(tmp_dir, recursive = TRUE)
   })
