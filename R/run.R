@@ -22,6 +22,7 @@ execute <- function(method, args_string, verbose = FALSE) {
 #' @importFrom stats var
 #' @importFrom utils write.table read.table
 #' @importFrom glue glue
+#' @importFrom dynutils run_until_exit
 #'
 #' @export
 run_SCOUP <- function(expr,
