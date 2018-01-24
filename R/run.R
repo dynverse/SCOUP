@@ -1,7 +1,7 @@
 execute <- function(method, args_string, verbose = FALSE) {
   path <- find.package("SCOUP")
   cmd <- paste0("'", path, "/code/", method, "' ", args_string)
-  system(cmd, ignore.stdout = !verbose, ignore.stderr = !verbose)
+  dynutils::run_until_exit(cmd, bash=FALSE)
 }
 
 #' Run SCOUP
@@ -38,8 +38,8 @@ run_SCOUP <- function(expr,
                       thresh = .01,
                       verbose = FALSE) {
   # create distribution on starting population
-  vars <- apply(expr[start_ix,], 2, stats::var)
-  means <- apply(expr[start_ix,], 2, mean)
+  vars <- apply(expr[start_ix,, drop=F], 2, stats::var)
+  means <- apply(expr[start_ix,, drop=F], 2, mean)
   distr_df <- data.frame(i = seq_along(vars) - 1, means, vars)
 
   # create temporary folder
@@ -125,6 +125,6 @@ run_SCOUP <- function(expr,
       ll = ll
     )
   }, finally = {
-    # unlink(tmp_dir, recursive = TRUE, force = TRUE)
+    unlink(tmp_dir, recursive = TRUE, force = TRUE)
   })
 }
