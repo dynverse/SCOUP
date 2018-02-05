@@ -25,21 +25,24 @@ execute <- function(method, args_string, verbose = FALSE) {
 #' @importFrom dynutils run_until_exit
 #'
 #' @export
-run_SCOUP <- function(expr,
-                      start_ix,
-                      ndim = 3,
-                      nbranch = 1,
-                      max_ite1 = 1000,
-                      max_ite2 = 10000,
-                      alpha_min = .1,
-                      alpha_max = 100,
-                      t_min = .001,
-                      t_max = 2,
-                      sigma_squared_min = .1,
-                      thresh = .01,
-                      verbose = FALSE) {
+run_SCOUP <- function(
+  expr,
+  start_ix,
+  ndim = 3,
+  nbranch = 1,
+  max_ite1 = 1000,
+  max_ite2 = 10000,
+  alpha_min = .1,
+  alpha_max = 100,
+  t_min = .001,
+  t_max = 2,
+  sigma_squared_min = .1,
+  thresh = .01,
+  verbose = FALSE
+) {
   # create distribution on starting population
   vars <- apply(expr[start_ix,, drop=F], 2, stats::var)
+  vars[vars == 0] <- diff(range(expr))*1e-3
   means <- apply(expr[start_ix,, drop=F], 2, mean)
   distr_df <- data.frame(i = seq_along(vars) - 1, means, vars)
 
