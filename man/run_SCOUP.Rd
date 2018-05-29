@@ -32,6 +32,8 @@ run_SCOUP(expr, start_ix, ndim = 3, nbranch = 1, max_ite1 = 1000,
 \item{sigma_squared_min}{sigma_squared_min}
 
 \item{thresh}{thresh}
+
+\item{verbose}{verbose}
 }
 \description{
 Run SCOUP

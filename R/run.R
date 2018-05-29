@@ -1,7 +1,7 @@
 execute <- function(method, args_string, verbose = FALSE) {
   path <- find.package("SCOUP")
   cmd <- paste0("'", path, "/code/", method, "' ", args_string)
-  dynutils::run_until_exit(cmd, bash=FALSE)
+  output <- processx::run("/bin/bash", c("-c", cmd), echo=TRUE)
 }
 
 #' Run SCOUP
@@ -18,11 +18,11 @@ execute <- function(method, args_string, verbose = FALSE) {
 #' @param t_max t_max
 #' @param sigma_squared_min sigma_squared_min
 #' @param thresh thresh
+#' @param verbose verbose
 #'
 #' @importFrom stats var
 #' @importFrom utils write.table read.table
 #' @importFrom glue glue
-#' @importFrom dynutils run_until_exit
 #'
 #' @export
 run_SCOUP <- function(
